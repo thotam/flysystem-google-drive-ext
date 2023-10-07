@@ -343,11 +343,12 @@ class GoogleDriveAdapter implements FilesystemAdapter
             if ($client->isUsingApplicationDefaultCredentials()) {
                 $client->fetchAccessTokenWithAssertion();
             } else {
-                $refreshToken = $client->getRefreshToken();
-                if ($refreshToken) {
-                    $client->fetchAccessTokenWithRefreshToken($refreshToken);
-                    $this->service = new Drive($client);
-                }
+                do {
+                    $refreshToken = $client->getRefreshToken();
+                } while (!$refreshToken);
+
+                $client->fetchAccessTokenWithRefreshToken($refreshToken);
+                $this->service = new Drive($client);
             }
         }
     }
