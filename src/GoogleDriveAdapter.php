@@ -285,6 +285,20 @@ class GoogleDriveAdapter implements FilesystemAdapter
                 $this->rootId = $this->root;
                 $this->clearCache();
             }
+        } else if (isset($this->options['sharedFolderId'])) {
+            $this->root = (!$this->useDisplayPaths && $root !== null)
+                ? $root
+                : $this->options['sharedFolderId'];
+
+            $this->setPathPrefix('');
+
+            if ($this->useDisplayPaths && $root !== null) {
+                // get real root id
+                $this->root = $this->toSingleVirtualPath($root, false, true, true, true);
+                // reset cache
+                $this->rootId = $this->root;
+                $this->clearCache();
+            }
         } else {
             if (!$this->useDisplayPaths || $root === null) {
                 if ($root === null) {
@@ -1388,7 +1402,6 @@ class GoogleDriveAdapter implements FilesystemAdapter
         } else {
             $mime = $mimeMap['default'];
         }
-        $mime = rawurlencode($mime);
 
         $params = $this->applyDefaultParams(['mimeType' => $mime], 'files.get');
         return 'https://www.googleapis.com/drive/v3/files/'.$file->getId().'/export?'.http_build_query($params);
